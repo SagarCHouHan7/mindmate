@@ -3,7 +3,7 @@ package com.MindMate.service;
 import com.MindMate.dto.PageResponseDto;
 import com.MindMate.dto.mediaDto.ImageResponseDto;
 import com.MindMate.model.account.Expert;
-import com.MindMate.model.mediaModels.ImageEntity;
+import com.MindMate.model.ImageEntity;
 import com.MindMate.repository.AccountRepo;
 import com.MindMate.repository.ImageEntityRepo;
 import com.MindMate.service.Utils.CurrentRoleService;

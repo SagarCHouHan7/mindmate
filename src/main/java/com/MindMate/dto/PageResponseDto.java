@@ -1,6 +1,5 @@
 package com.MindMate.dto;
 
-import com.MindMate.dto.questionDto.QuestionResponseDto;
 import lombok.Getter;
 import lombok.Setter;
 

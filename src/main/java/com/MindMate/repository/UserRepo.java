@@ -1,6 +1,5 @@
 package com.MindMate.repository;
 
-import com.MindMate.model.account.Account;
 import com.MindMate.model.account.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

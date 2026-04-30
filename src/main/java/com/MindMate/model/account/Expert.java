@@ -1,15 +1,11 @@
 package com.MindMate.model.account;
 
-import com.MindMate.model.Email;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 
-import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;

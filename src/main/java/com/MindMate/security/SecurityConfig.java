@@ -35,7 +35,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/public/**" , "/images/**", "/user/quickChat/**", "/user/chat/**").permitAll()
+                        .requestMatchers("/public/**" , "/images/**", "/user/quickChat/**", "/user/chat/**", "/api/assessment/**" , "/api/escalation/**").permitAll()
                         .requestMatchers("/api/answer/**" , "/api/media/access/**" , "/api/question/**").hasAnyRole("USER" , "EXPERT")
                         .requestMatchers("/api/media/**").hasRole("EXPERT")
                         .requestMatchers("/admin/**").hasRole("ADMIN")

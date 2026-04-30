@@ -1,13 +1,15 @@
 package com.MindMate.service.publicService;
 
+import com.MindMate.appointments.AppointmentRepo;
+import com.MindMate.community.repo.QuestionRepo;
 import com.MindMate.dto.AccountDto.LoginRequest;
 import com.MindMate.dto.AccountDto.RegisterResponse;
 import com.MindMate.dto.publicDto.SnapshotsDto;
-import com.MindMate.model.RiskStatus;
+import com.MindMate.agents.escalation.RiskStatus;
 import com.MindMate.model.account.*;
 import com.MindMate.model.enums.RiskStatusLevel;
 import com.MindMate.repository.*;
-import com.MindMate.repository.AIRepo.RiskStatusRepo;
+import com.MindMate.agents.escalation.RiskStatusRepo;
 import com.MindMate.security.AccountDetailsService;
 import com.MindMate.security.jwt.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -49,6 +52,7 @@ public class AccountService {
     @Autowired
     private RiskStatusRepo riskStatusRepo;
 
+    @Transactional
     public RegisterResponse registerUser(User user) {
         Account account = accountRepo.findByUsername(user.getUsername().trim());
         if(account != null) return null;

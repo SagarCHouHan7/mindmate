@@ -6,11 +6,8 @@ import com.MindMate.model.account.Account;
 import com.MindMate.model.enums.NotificationStatus;
 import com.MindMate.repository.AccountRepo;
 import com.MindMate.repository.NotificationRepo;
-import com.MindMate.security.SecurityUtils;
 import com.MindMate.service.Utils.CurrentRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
