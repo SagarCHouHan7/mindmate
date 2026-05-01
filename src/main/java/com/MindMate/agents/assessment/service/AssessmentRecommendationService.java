@@ -41,7 +41,7 @@ public class AssessmentRecommendationService {
     public void generateRecommendedAssessment(User user){
 
         String longTermHistory = memoryService.getSummary(user.getId());
-        StringBuilder shortTermHistory = chatHistoryService.last10Message(user);
+        StringBuilder shortTermHistory = chatHistoryService.getLast10Message(user);
         RiskStatus riskStatus = riskDetectionService.getCurrentRiskStatus(user);
 
         //use the above information to determine the most suitable assessment for the user at this point of time

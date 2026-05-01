@@ -1,5 +1,6 @@
 package com.MindMate.appointments.service;
 
+import com.MindMate.agents.carejourney.CareJourneyAgentService;
 import com.MindMate.appointments.Appointment;
 import com.MindMate.appointments.AppointmentRepo;
 import com.MindMate.appointments.enums.AppointmentStatus;
@@ -10,6 +11,7 @@ import com.MindMate.repository.ExpertRepo;
 import com.MindMate.repository.UserRepo;
 import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
+import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,13 +25,13 @@ import java.util.Map;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class PaymentService {
-    @Autowired
-    private AppointmentRepo appointmentRepo;
-    @Autowired
-    private UserRepo userRepo;
-    @Autowired
-    private ExpertRepo expertRepo;
+
+    private final AppointmentRepo appointmentRepo;
+    private final UserRepo userRepo;
+    private final ExpertRepo expertRepo;
+    private final CareJourneyAgentService careJourneyAgent;
 
     @Value("${razorpay.key.id}")
     private String razorpayId;
@@ -110,7 +112,9 @@ public class PaymentService {
         appointment.setPaymentId(paymentId);
         appointment.setPaymentStatus(PaymentStatus.SUCCESS);
         appointment.setAppointmentStatus(AppointmentStatus.SCHEDULED);
-        appointmentRepo.save(appointment);
+        Appointment saved = appointmentRepo.save(appointment);
+        //async call to generate patient report using care journey agent and save in DB
+        careJourneyAgent.generatePatientReportAndSaveInDB(appointment.getUser(), saved);
         return "payment verified successfully";
 
 

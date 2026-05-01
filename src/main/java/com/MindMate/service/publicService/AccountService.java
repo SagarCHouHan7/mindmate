@@ -7,7 +7,7 @@ import com.MindMate.dto.AccountDto.RegisterResponse;
 import com.MindMate.dto.publicDto.SnapshotsDto;
 import com.MindMate.agents.escalation.RiskStatus;
 import com.MindMate.model.account.*;
-import com.MindMate.model.enums.RiskStatusLevel;
+import com.MindMate.agents.escalation.RiskStatusLevel;
 import com.MindMate.repository.*;
 import com.MindMate.agents.escalation.RiskStatusRepo;
 import com.MindMate.security.AccountDetailsService;

@@ -3,7 +3,6 @@ package com.MindMate.agents.escalation;
 import com.MindMate.agents.untils.ChatHistoryService;
 import com.MindMate.agents.untils.MemoryService;
 import com.MindMate.model.account.User;
-import com.MindMate.model.enums.RiskStatusLevel;
 import com.MindMate.agents.wellness.Role;
 import com.MindMate.agents.wellness.ChatRepo;
 import com.MindMate.service.Utils.CurrentRoleService;
@@ -34,7 +33,7 @@ public class RiskDetectionService {
     @Value("classpath:/prompts/AIWellnessExpert/risk-detection-template.st")
     private Resource template;
 
-    private static final List<String> HIGH_RISK = List.of(
+    private static final List<String> SEVERE_RISK = List.of(
             "suicide",
             "suicidal",
             "kill myself",
@@ -60,7 +59,7 @@ public class RiskDetectionService {
         try {
 
             if (detectHighRiskWords(userMessage)) {
-                markRiskStatusAndSave(RiskStatusLevel.HIGH, user);
+                markRiskStatusAndSave(RiskStatusLevel.SEVERE, user);
                 return;
             }
 
@@ -68,7 +67,7 @@ public class RiskDetectionService {
 
             String summary = memoryService.getSummary(user.getId());
 
-            StringBuilder pastMessages = chatHistoryService.last10Message(user);
+            StringBuilder pastMessages = chatHistoryService.getLast10Message(user);
 
 
             String riskLevel = Objects.requireNonNull(chatClient.prompt()
@@ -90,8 +89,9 @@ public class RiskDetectionService {
 
     private RiskStatusLevel getRiskLevelStatus(String riskLevel){
         return switch (riskLevel) {
+            case "SEVERE" -> RiskStatusLevel.SEVERE;
             case "LOW" -> RiskStatusLevel.LOW;
-            case "MEDIUM" -> RiskStatusLevel.MEDIUM;
+            case "MEDIUM" -> RiskStatusLevel.MODERATE;
             case "HIGH" -> RiskStatusLevel.HIGH;
             default -> RiskStatusLevel.UNKNOWN;
         };
@@ -116,7 +116,7 @@ public class RiskDetectionService {
 
     public boolean detectHighRiskWords(String userMessage){
         String lower= userMessage.toLowerCase();
-        return HIGH_RISK.stream()
+        return SEVERE_RISK.stream()
                 .anyMatch(lower::contains);
     }
 

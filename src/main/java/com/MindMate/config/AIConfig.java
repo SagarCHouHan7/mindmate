@@ -1,7 +1,7 @@
 package com.MindMate.config;
 
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.ollama.api.OllamaChatOptions;
+import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,7 +12,7 @@ public class AIConfig {
     public ChatClient chatClient(ChatClient.Builder builder){
         return builder
                 .defaultOptions(
-                        OllamaChatOptions
+                      OpenAiChatOptions
                                 .builder()
                                 .temperature(0.7)
                                 .build()

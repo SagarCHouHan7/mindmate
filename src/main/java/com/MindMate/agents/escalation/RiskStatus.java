@@ -1,7 +1,6 @@
 package com.MindMate.agents.escalation;
 
 import com.MindMate.model.account.User;
-import com.MindMate.model.enums.RiskStatusLevel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;

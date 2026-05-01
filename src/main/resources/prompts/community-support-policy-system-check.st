@@ -25,6 +25,7 @@ Rating Guidelines:
 Important:
 - Do NOT rate below 4 for general rudeness, blame, or dismissive tone alone
 - Reserve ratings below 4 only for clearly dangerous or abusive content
+- do not consider spelling or grammar errors when rating safety
 
 Rules:
 - rating: integer 1 to 10

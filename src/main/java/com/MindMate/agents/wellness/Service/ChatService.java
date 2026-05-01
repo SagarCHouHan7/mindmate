@@ -9,6 +9,7 @@ import com.MindMate.agents.wellness.Role;
 import com.MindMate.agents.wellness.ChatRepo;
 import com.MindMate.agents.escalation.RiskStatusRepo;
 import com.MindMate.service.Utils.CurrentRoleService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,11 +17,17 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.Date;
+import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class ChatService {
 
+    @Autowired
     private ChatClient chatClient;
     @Autowired
     private ChatRepo chatRepo;
@@ -60,8 +67,7 @@ public class ChatService {
 
 
         // Load memory
-        StringBuilder prompt = chatHistoryService.last10Message(user);
-
+        StringBuilder prompt = chatHistoryService.getLast10Message(user);
 
         prompt.append("USER: ")
                 .append(userMessage);
@@ -69,7 +75,6 @@ public class ChatService {
         StringBuilder fullResponse = new StringBuilder();
 
         Date age = user.getDob();
-        Date dob = (age == null) ? java.sql.Date.valueOf("2005-01-01") : age;
 
         String summary = memoryService.getSummary(user.getId());
         String ragMemory =
@@ -86,10 +91,11 @@ public class ChatService {
         return chatClient.prompt()
                 .user(s->s.text(systemGuide)
                         .param("username", user.getUsername())
-                        .param("dob", dob)
+                        .param("age", calculateAge(user.getDob()))
                         .param("summary", summary)
                         .param("history", prompt.toString() )
-                        .param("retrievedMemories", retrievedMemories))
+                        .param("retrievedMemories", retrievedMemories)
+                        .param("riskStatus", Objects.requireNonNull(riskDetectionService.getCurrentRiskStatus(user))))
                 .stream()
                 .content()
                 .doOnNext(fullResponse::append)
@@ -112,6 +118,18 @@ public class ChatService {
 
                 });
 
+    }
+
+    private int calculateAge(Date dob) {
+        if (dob == null) return 25;
+
+        LocalDate birthDate = dob.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        LocalDate currentDate = LocalDate.now();
+
+        return Period.between(birthDate, currentDate).getYears();
     }
 
 

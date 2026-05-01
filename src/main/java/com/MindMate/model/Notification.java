@@ -28,5 +28,10 @@ public class Notification {
     @JsonIgnore
     private Account account;
 
-    private NotificationStatus status;
+    private NotificationStatus status = NotificationStatus.UNREAD;
+
+    @PrePersist
+    public void prePersist(){
+        this.time = LocalDateTime.now();
+    }
 }

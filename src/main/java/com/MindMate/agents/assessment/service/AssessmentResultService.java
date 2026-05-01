@@ -177,9 +177,7 @@ public class AssessmentResultService {
 
 
     public @Nullable List<AssessmentResult> getMyAssessmentResults() {
-
         User user = currentRoleService.getCurrentUser();
-
         return assessmentResultRepo.findAllByUser(user);
     }
 }

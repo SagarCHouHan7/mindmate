@@ -15,7 +15,7 @@ public class ChatHistoryService {
 
     private final ChatRepo chatRepo;
 
-    public StringBuilder last10Message(User user){
+    public StringBuilder getLast10Message(User user){
         List<ChatMessage> history = chatRepo.findTop10ByUserIdOrderByCreatedAtDesc(user.getId());
         Collections.reverse(history);
         StringBuilder pastMessages = new StringBuilder();

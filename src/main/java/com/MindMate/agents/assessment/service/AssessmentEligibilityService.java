@@ -2,7 +2,7 @@ package com.MindMate.agents.assessment.service;
 
 import com.MindMate.agents.escalation.RiskStatus;
 import com.MindMate.model.account.User;
-import com.MindMate.model.enums.RiskStatusLevel;
+import com.MindMate.agents.escalation.RiskStatusLevel;
 import com.MindMate.agents.escalation.RiskDetectionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ public class AssessmentEligibilityService {
         RiskStatus state = riskDetectionService.getCurrentRiskStatus(user);
         if(state == null) return false;
         return state.getRiskLevel() == RiskStatusLevel.HIGH
-                || state.getRiskLevel() == RiskStatusLevel.MEDIUM;
+                || state.getRiskLevel() == RiskStatusLevel.MODERATE || state.getRiskLevel() == RiskStatusLevel.SEVERE;
     }
 
 

@@ -1,5 +1,6 @@
 package com.MindMate.agents.quickchat;
 
+import com.MindMate.model.account.User;
 import com.MindMate.service.Utils.CurrentRoleService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.AssistantMessage;
@@ -11,7 +12,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,53 +33,41 @@ public class QuickChatService {
     private final Map<String, List<QuickChatMessage>> conversations = new ConcurrentHashMap<>();
 
     @Value("classpath:/prompts/quick-chat-system-guide.st")
-    Resource systemMessage;
+    Resource quickChatTemplate;
 
     public QuickChatService(ChatClient chatClient){
         this.chatClient = chatClient;
     }
 
 
-    public Flux<String> getNextResponse(String message) {
+    public Flux<String> getNextResponse(String messages) {
 
-        Long userId = currentRoleService.getCurrentUser().getId();
-        String conversationId = userId + "_quick";
-        conversations.putIfAbsent(conversationId, new ArrayList<>());
-        List<QuickChatMessage> history = conversations.get(conversationId);
-        history.add(new QuickChatMessage("user" , message));
-
-        //resizing the history
-        if(history.size() > MAX_HISTORY){
-            history = new ArrayList<>(history.subList(history.size() - MAX_HISTORY, history.size()));
-            conversations.put(conversationId, history);
-        }
-
-        List<Message> messages = history.stream()
-                .map(m->
-                        m.getRole().equals("user")
-                        ? new UserMessage(m.getContent())
-                        : new AssistantMessage(m.getContent()))
-                .collect(Collectors.toUnmodifiableList());
-
-        //streaming response
-        StringBuilder fullResponse = new StringBuilder();
-
-        List<QuickChatMessage> finalHistory = history;
+        System.out.println(messages);
+        User user = currentRoleService.getCurrentUser();
         return chatClient.prompt()
-                .system(systemMessage)
-                .messages(messages)
+                .user(u->u.text(quickChatTemplate)
+                        .param("username" , user.getUsername())
+                        .param("age", calculateAge(user.getDob()))
+                        .param("conversations", messages))
                 .stream()
-                .content()
-                .doOnNext(fullResponse::append)
-                .doOnComplete(()->{
-                    finalHistory.add(new QuickChatMessage("assistant" , fullResponse.toString()));
-                    conversations.put(conversationId, finalHistory);
-                });
-
+                .content();
     }
 
     public Boolean reset() {
         conversations.remove(currentRoleService.getCurrentUser().getId()+"_quick");
         return true;
     }
+
+    private int calculateAge(Date dob) {
+        if (dob == null) return 25;
+
+        LocalDate birthDate = dob.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        LocalDate currentDate = LocalDate.now();
+
+        return Period.between(birthDate, currentDate).getYears();
+    }
+
 }

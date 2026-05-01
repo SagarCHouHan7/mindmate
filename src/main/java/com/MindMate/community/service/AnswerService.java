@@ -14,6 +14,7 @@ import com.MindMate.repository.AccountRepo;
 import com.MindMate.agents.moderation.ModerationService;
 import com.MindMate.service.Utils.CurrentRoleService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,18 +25,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class AnswerService {
 
-    @Autowired
-    private AccountRepo accountRepo;
-    @Autowired
-    private AnswerRepo answerRepo;
-    @Autowired
-    private QuestionRepo questionRepo;
-    @Autowired
-    private ModerationService moderationService;
-    @Autowired
-    private CurrentRoleService currentRoleService;
+    private final AccountRepo accountRepo;
+    private final AnswerRepo answerRepo;
+    private final QuestionRepo questionRepo;
+    private final ModerationService moderationService;
+    private final CurrentRoleService currentRoleService;
 
     public AnswerResponseDto postAnswer(CreateAnswerDto answer) {
         Account account = currentRoleService.getCurrentAccount();
@@ -117,7 +114,7 @@ public class AnswerService {
             dto.setDisplayName(((Expert) answeredBy).getFullName());
         }else{
             dto.setRole("AI");
-            dto.setDisplayName("PsycheAI");
+            dto.setDisplayName("MindMate AI");
         }
         dto.setId(answer.getId());
         dto.setLikes(answer.getLikes());
