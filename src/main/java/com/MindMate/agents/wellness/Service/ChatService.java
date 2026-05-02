@@ -92,15 +92,14 @@ public class ChatService {
                 .append(userMessage)
                 .append("\n");
 
-        System.out.println(redisPrompt.toString());
-        log.info("Loaded chat history from Redis:\n{}", redisPrompt.toString());
+        System.out.println(redisPrompt.toString() + "redis prompt above");
+        log.info("Loaded chat history from Redis:\n{}", redisPrompt.toString() +"redis done");
 
         prompt.append("USER: ")
                 .append(userMessage);
 
         StringBuilder fullResponse = new StringBuilder();
 
-        Date age = user.getDob();
 
         String summary = memoryService.getSummary(user.getId());
         String ragMemory =
@@ -109,6 +108,7 @@ public class ChatService {
                         userMessage
                 );
         String retrievedMemories = ragMemory.isBlank() ? "No relevant memories found" : ragMemory;
+        System.out.println("rag done");
 
 //        System.out.println(retrievedMemories);
 //        System.out.println(summary);
