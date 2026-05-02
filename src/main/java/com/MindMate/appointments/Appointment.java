@@ -4,6 +4,7 @@ import com.MindMate.appointments.enums.AppointmentStatus;
 import com.MindMate.appointments.enums.PaymentStatus;
 import com.MindMate.model.account.Expert;
 import com.MindMate.model.account.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,11 +43,13 @@ public class Appointment {
     private String currency = "INR";
 
     @JoinColumn(name = "expert_id", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnore
     private Expert expert;
 
     @JoinColumn(name = "user_id" , nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnore
     private User user;
 
 

@@ -19,7 +19,10 @@ public class Assessment {
 
     private String title;
 
+    @Lob
     private String description;
 
     private boolean active=true;
+
+    private Integer totalQuestions;
 }

@@ -29,10 +29,13 @@ public class AssessmentResult {
 
     private String severity;
 
+    @Lob
     private String aiInterpretation;
 
     private Boolean expertConsultationRequired;
 
+
+    @Lob
     private String recommendationSummary;
 
     private LocalDateTime createAt;

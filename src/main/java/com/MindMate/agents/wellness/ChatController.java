@@ -25,5 +25,8 @@ public class ChatController {
   //  @GetMapping("/loadHistory")
 
 
-
+    @GetMapping("/loadHistory")
+    public ResponseEntity<?> loadChatHistory(){
+        return ResponseEntity.ok(chatService.loadChatHistory());
+    }
 }

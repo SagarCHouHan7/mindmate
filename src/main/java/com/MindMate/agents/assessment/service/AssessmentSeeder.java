@@ -33,6 +33,7 @@ public class AssessmentSeeder implements CommandLineRunner {
 
         Assessment assessment = new Assessment();
         assessment.setType(AssessmentType.STRESS);
+        assessment.setTotalQuestions(5);
         assessment.setTitle("Stress Assessment");
         assessment.setDescription(
                 "Measures perceived stress level"

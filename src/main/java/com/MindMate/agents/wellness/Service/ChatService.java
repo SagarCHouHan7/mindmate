@@ -10,6 +10,7 @@ import com.MindMate.agents.wellness.ChatRepo;
 import com.MindMate.agents.escalation.RiskStatusRepo;
 import com.MindMate.service.Utils.CurrentRoleService;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -133,4 +134,8 @@ public class ChatService {
     }
 
 
+    public @Nullable Object loadChatHistory() {
+
+        return null;
+    }
 }
