@@ -1,5 +1,6 @@
 package com.MindMate.agents.wellness.Service;
 
+import com.MindMate.agents.RedisChatService;
 import com.MindMate.agents.escalation.RiskDetectionService;
 import com.MindMate.agents.untils.ChatHistoryService;
 import com.MindMate.agents.untils.MemoryService;
@@ -50,6 +51,8 @@ public class ChatService {
     private RiskDetectionService riskDetectionService;
     @Autowired
     private ChatHistoryService chatHistoryService;
+    @Autowired
+    private RedisChatService redisChatService;
 
     @Value("classpath:/prompts/AIWellnessExpert/chat-guide.st")
     private Resource systemGuide;
@@ -70,9 +73,22 @@ public class ChatService {
 
         chatRepo.save(userMsg);
 
+        redisChatService.saveMessage(
+                user.getId(),
+                Role.USER.toString(),
+                userMessage
+        );
+
 
         // Load memory
         StringBuilder prompt = chatHistoryService.getLast10Message(user);
+        //load memory from redis
+        StringBuilder redisPrompt = chatHistoryService.getLast10MessageFromRedis(user);
+        redisPrompt.append("USER: ")
+                .append(userMessage)
+                .append("\n");
+
+        System.out.println(redisPrompt.toString());
 
         prompt.append("USER: ")
                 .append(userMessage);
@@ -98,7 +114,8 @@ public class ChatService {
                         .param("username", user.getUsername())
                         .param("age", calculateAge(user.getDob()))
                         .param("summary", summary)
-                        .param("history", prompt.toString() )
+                        //.param("history", prompt.toString() )
+                        .param("history", redisPrompt.toString())
                         .param("retrievedMemories", retrievedMemories)
                         .param("riskStatus", Objects.requireNonNull(riskDetectionService.getCurrentRiskStatus(user))))
                 .stream()
@@ -110,6 +127,12 @@ public class ChatService {
                     message.setUser(user);
                     message.setContent(String.valueOf(fullResponse));
                     chatRepo.save(message);
+
+                    redisChatService.saveMessage(
+                            user.getId(),
+                            Role.ASSISTANT.toString(),
+                            fullResponse.toString()
+                    );
 
                     memoryService.updateSummary(
                             user.getId(),
@@ -153,13 +176,13 @@ public class ChatService {
         Page<ChatMessage> messagePage =
                 chatRepo.findByUserOrderByCreatedAtDesc(user, pageable);
 
-        // ✅ FIX: make mutable copy
+
         List<ChatMessage> messages = new ArrayList<>(messagePage.getContent());
 
         // Debug
         messages.forEach(x -> System.out.println(x.getContent()));
 
-        // ✅ Reverse safely
+
         Collections.reverse(messages);
 
         PageResponseDto<ChatMessage> response = new PageResponseDto<>();

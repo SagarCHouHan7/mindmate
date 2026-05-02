@@ -17,6 +17,7 @@ public class MemoryService {
     @Value("classpath:/prompts/AIWellnessExpert/user-memory-update-template.st")
     Resource memoryUpdateTemplate;
 
+    // Retrieves the long-term summary for a user, or returns an empty string if not found
     public String getSummary(Long userId){
         return memoryRepo.findById(userId)
                 .map(UserMemory::getSummary)
