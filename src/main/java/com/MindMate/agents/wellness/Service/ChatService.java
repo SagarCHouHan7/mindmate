@@ -12,6 +12,7 @@ import com.MindMate.agents.wellness.ChatRepo;
 import com.MindMate.agents.escalation.RiskStatusRepo;
 import com.MindMate.service.Utils.CurrentRoleService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatService {
@@ -81,7 +83,9 @@ public class ChatService {
 
 
         // Load memory
+        log.info("Loading chat history for user {} from DB", user.getUsername());
         StringBuilder prompt = chatHistoryService.getLast10Message(user);
+        log.info("Loaded chat history from DB:\n{}", prompt.toString());
         //load memory from redis
         StringBuilder redisPrompt = chatHistoryService.getLast10MessageFromRedis(user);
         redisPrompt.append("USER: ")
@@ -89,6 +93,7 @@ public class ChatService {
                 .append("\n");
 
         System.out.println(redisPrompt.toString());
+        log.info("Loaded chat history from Redis:\n{}", redisPrompt.toString());
 
         prompt.append("USER: ")
                 .append(userMessage);
