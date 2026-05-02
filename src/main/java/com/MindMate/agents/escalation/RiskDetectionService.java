@@ -53,36 +53,69 @@ public class RiskDetectionService {
     );
 
 
+//    @Async("taskExecutor")
+//    public void detectRisk(String userMessage, User user){
+//
+//        System.out.println("Running risk detection for user: " + user.getId() + " with message: " + userMessage);
+//        try {
+//
+//            if (detectHighRiskWords(userMessage)) {
+//                markRiskStatusAndSave(RiskStatusLevel.SEVERE, user);
+//                return;
+//            }
+//
+//            if (!shouldRunRiskCheck(userMessage, user.getId())) return;
+//
+//            String summary = memoryService.getSummary(user.getId());
+//
+//            StringBuilder pastMessages = chatHistoryService.getLast10Message(user);
+//
+//
+//            String riskLevel = Objects.requireNonNull(chatClient.prompt()
+//                            .user(s -> s.text(template)
+//                                    .param("summary", summary)
+//                                    .param("history", pastMessages.toString())
+//                                    .param("risk_status", Objects.requireNonNull(getCurrentRiskStatus(user)).getRiskLevel().name()))
+//                            .call()
+//                            .content())
+//                    .trim()
+//                    .toUpperCase();
+//
+//            RiskStatusLevel status = getRiskLevelStatus(riskLevel);
+//
+//            markRiskStatusAndSave(status, user);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//    }
+
     @Async("taskExecutor")
     public void detectRisk(String userMessage, User user){
 
+        System.out.println("Running risk detection for user: " + user.getId());
+
         try {
 
-            if (detectHighRiskWords(userMessage)) {
-                markRiskStatusAndSave(RiskStatusLevel.SEVERE, user);
-                return;
-            }
-
-            if (!shouldRunRiskCheck(userMessage, user.getId())) return;
-
             String summary = memoryService.getSummary(user.getId());
+            String history = chatHistoryService.getLast10Message(user).toString();
 
-            StringBuilder pastMessages = chatHistoryService.getLast10Message(user);
+            RiskStatus currentStatus = getCurrentRiskStatus(user);
 
+            String response = chatClient.prompt()
+                    .user(s -> s.text(template)
+                            .param("summary", summary)
+                            .param("history", history)
+                            .param("risk_status", currentStatus.getRiskLevel().name()))
+                    .call()
+                    .content();
 
-            String riskLevel = Objects.requireNonNull(chatClient.prompt()
-                            .user(s -> s.text(template)
-                                    .param("summary", summary)
-                                    .param("history", pastMessages.toString()))
-                            .call()
-                            .content())
-                    .trim()
-                    .toUpperCase();
+            if (response == null || response.isBlank()) return;
 
-            RiskStatusLevel status = getRiskLevelStatus(riskLevel);
+            RiskStatusLevel newStatus = parseRiskLevel(response);
 
-            markRiskStatusAndSave(status, user);
-        }catch (Exception e){
+            markRiskStatusAndSave(newStatus, user);
+
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
@@ -121,13 +154,20 @@ public class RiskDetectionService {
     }
 
     public void markRiskStatusAndSave(RiskStatusLevel currStatus, User user){
-        RiskStatus existingRiskStatus = riskStatusRepo.findTopByUserOrderByCreatedAtDesc(user).orElseThrow(RuntimeException::new);
 
-        if(existingRiskStatus.getRiskLevel() == currStatus) return;
+        Optional<RiskStatus> optional =
+                riskStatusRepo.findTopByUserOrderByCreatedAtDesc(user);
+
+        if(optional.isPresent() &&
+                optional.get().getRiskLevel() == currStatus){
+            return;
+        }
+
         RiskStatus obj = new RiskStatus();
         obj.setRiskLevel(currStatus);
         obj.setUser(user);
         riskStatusRepo.save(obj);
+        System.out.println("Risk status updated to " + currStatus + " for user: " + user.getId());
     }
 
     public @Nullable RiskStatus getCurrentRiskStatus() {
@@ -143,5 +183,17 @@ public class RiskDetectionService {
         obj.setRiskLevel(RiskStatusLevel.UNKNOWN);
         obj.setUser(user);
         return riskStatusRepo.save(obj);
+    }
+
+    private RiskStatusLevel parseRiskLevel(String response){
+
+        String r = response.trim().toUpperCase();
+
+        if(r.contains("SEVERE")) return RiskStatusLevel.SEVERE;
+        if(r.contains("HIGH")) return RiskStatusLevel.HIGH;
+        if(r.contains("MEDIUM")) return RiskStatusLevel.MODERATE;
+        if(r.contains("LOW")) return RiskStatusLevel.LOW;
+
+        return RiskStatusLevel.UNKNOWN;
     }
 }

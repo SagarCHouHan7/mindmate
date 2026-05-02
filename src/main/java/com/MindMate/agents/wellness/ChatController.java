@@ -17,7 +17,7 @@ public class ChatController {
     private RiskDetectionService riskDetectionService;
 
     @PostMapping("/getResponse")
-    public ResponseEntity<Flux<String>> chat(@RequestBody() String message){
+    public ResponseEntity<Flux<String>> chat(@RequestParam("message") String message){
 
         return ResponseEntity.ok(chatService.chat(message));
     }
@@ -26,7 +26,9 @@ public class ChatController {
 
 
     @GetMapping("/loadHistory")
-    public ResponseEntity<?> loadChatHistory(){
-        return ResponseEntity.ok(chatService.loadChatHistory());
+    public ResponseEntity<?> loadChatHistory(
+            @RequestParam(defaultValue = "0") int page
+    ) {
+        return ResponseEntity.ok(chatService.loadChatHistory(page));
     }
 }

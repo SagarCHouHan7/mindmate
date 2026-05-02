@@ -4,6 +4,7 @@ import com.MindMate.agents.escalation.RiskDetectionService;
 import com.MindMate.agents.untils.ChatHistoryService;
 import com.MindMate.agents.untils.MemoryService;
 import com.MindMate.agents.wellness.ChatMessage;
+import com.MindMate.dto.PageResponseDto;
 import com.MindMate.model.account.User;
 import com.MindMate.agents.wellness.Role;
 import com.MindMate.agents.wellness.ChatRepo;
@@ -15,14 +16,17 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -134,8 +138,38 @@ public class ChatService {
     }
 
 
-    public @Nullable Object loadChatHistory() {
+    public PageResponseDto<ChatMessage> loadChatHistory(int page) {
 
-        return null;
+        User user = currentRoleService.getCurrentUser();
+
+        int size = 10;
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by("createdAt").descending()
+        );
+
+        Page<ChatMessage> messagePage =
+                chatRepo.findByUserOrderByCreatedAtDesc(user, pageable);
+
+        // ✅ FIX: make mutable copy
+        List<ChatMessage> messages = new ArrayList<>(messagePage.getContent());
+
+        // Debug
+        messages.forEach(x -> System.out.println(x.getContent()));
+
+        // ✅ Reverse safely
+        Collections.reverse(messages);
+
+        PageResponseDto<ChatMessage> response = new PageResponseDto<>();
+        response.setContent(messages);
+        response.setPage(messagePage.getNumber());
+        response.setSize(messagePage.getSize());
+        response.setTotalPages(messagePage.getTotalPages());
+        response.setTotalElements(messagePage.getTotalElements());
+        response.setLast(messagePage.isLast());
+
+        return response;
     }
 }

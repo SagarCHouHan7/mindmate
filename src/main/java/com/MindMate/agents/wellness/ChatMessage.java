@@ -1,6 +1,7 @@
 package com.MindMate.agents.wellness;
 
 import com.MindMate.model.account.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,6 +23,7 @@ public class ChatMessage {
 
     @ManyToOne()
     @JoinColumn(name = "user_id", nullable = true)
+    @JsonIgnore
     private User user;
 
     private Role role; // USER or ASSISTANT
