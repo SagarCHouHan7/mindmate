@@ -25,6 +25,7 @@ public class CareJourneyAgentService {
 
     @Async("taskExecutor")
     public void generatePatientReportAndSaveInDB(User user, Appointment appointment ){
+        System.out.println("inside report generation for appointment: " + appointment.getId() + " and user: " + user.getId());
 
         //avoid duplicate report generation for the same appointment
         if(reportRepo.findByAppointmentId(appointment.getId()).isPresent()){
@@ -47,6 +48,7 @@ public class CareJourneyAgentService {
                     .append("\n");
         });
 
+        System.out.println("generating report for user: " + ctx.name() + " with age: " + ctx.age());
         String response = chatClient.prompt()
                 .user(u -> u.text(reportTemplate)
                         .param("name", ctx.name())
@@ -58,6 +60,8 @@ public class CareJourneyAgentService {
                 )
                 .call()
                 .content();
+
+        System.out.println("genrated report: ");
 
         System.out.println(response);
 
