@@ -75,6 +75,8 @@ public class ChatService {
 
         chatRepo.save(userMsg);
 
+        riskDetectionService.detectRisk(userMessage, user);
+
         redisChatService.saveMessage(
                 user.getId(),
                 Role.USER.toString(),
@@ -150,7 +152,7 @@ public class ChatService {
 
                     memoryExtractionService.extractAndStoreMemory(user.getId(), userMessage, fullResponse.toString());
 
-                    riskDetectionService.detectRisk(user);
+                    riskDetectionService.detectRisk(userMessage, user);
 
                 });
 

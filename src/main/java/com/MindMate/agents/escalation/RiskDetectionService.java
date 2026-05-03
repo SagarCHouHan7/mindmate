@@ -28,7 +28,6 @@ public class RiskDetectionService {
     private final RiskStatusRepo riskStatusRepo;
     private final CurrentRoleService currentRoleService;
     private final ChatHistoryService chatHistoryService;
-    private final RiskDetectionService riskDetectionService;
 
 
     @Value("classpath:/prompts/AIWellnessExpert/risk-detection-template.st")
@@ -91,7 +90,7 @@ public class RiskDetectionService {
 //    }
 
     @Async("taskExecutor")
-    public void detectRisk(User user){
+    public void detectRisk(String userMessage, User user){
 
         System.out.println("Running risk detection for user: " + user.getId());
 
@@ -176,7 +175,6 @@ public class RiskDetectionService {
 
     public @Nullable RiskStatus getCurrentRiskStatus() {
         User user = currentRoleService.getCurrentUser();
-        riskDetectionService.detectRisk(user);
         return getCurrentRiskStatus(user);
     }
 
