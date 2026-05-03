@@ -6,6 +6,7 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,26 +25,31 @@ public class RagService {
                 SearchRequest.builder()
                         .query(userMessage)
                         .topK(5)
-                        .filterExpression(
-                                "userId=='" + userId + "'"
-                        )
+                        .filterExpression("userId==" + userId)
                         .build();
 
 
-        List<Document> memories =
-                vectorStore.similaritySearch(request);
+        try {
+            List<Document> memories =
+                    vectorStore.similaritySearch(request);
 
 
-        if(memories.isEmpty()){
+            if(memories.isEmpty()){
+                return "";
+            }
+
+
+            return memories.stream()
+                    .map(Document::getText).filter(Objects::nonNull)
+                    .map(text -> text.length() > 500 ? text.substring(0, 500) : text)
+                    .collect(Collectors.joining("\n"));
+
+        }catch (Exception e){
+            e.printStackTrace();
             return "";
         }
 
 
-        return memories.stream()
-                .map(Document::getText)
-                .collect(
-                        Collectors.joining("\n")
-                );
 
     }
 

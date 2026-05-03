@@ -107,7 +107,10 @@ public class ChatService {
                         user.getId(),
                         userMessage
                 );
-        String retrievedMemories = ragMemory.isBlank() ? "No relevant memories found" : ragMemory;
+        String retrievedMemories = (ragMemory == null || ragMemory.isBlank())
+                ? "No relevant memories found"
+                : ragMemory;
+
         System.out.println("rag done");
 
 //        System.out.println(retrievedMemories);
