@@ -150,7 +150,7 @@ public class ChatService {
 
                     memoryExtractionService.extractAndStoreMemory(user.getId(), userMessage, fullResponse.toString());
 
-                    riskDetectionService.detectRisk(userMessage, user);
+                    riskDetectionService.detectRisk(user);
 
                 });
 
