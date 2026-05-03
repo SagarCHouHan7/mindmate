@@ -59,25 +59,48 @@ Assistant: %s
         );
 
 
-        String memory=
-                chatClient.prompt()
-                        .user(extractionPrompt)
-                        .call()
-                        .content();
+//        String memory=
+//                chatClient.prompt()
+//                        .user(extractionPrompt)
+//                        .call()
+//                        .content();
+//
+//
+//        if(memory==null ||
+//                memory.isBlank() ||
+//                memory.equalsIgnoreCase("NONE")){
+//            return;
+//        }
+//
+//
+//        memoryVectorService.saveMemory(
+//                userId,
+//                memory,
+//                "personal"
+//        );
 
 
-        if(memory==null ||
-                memory.isBlank() ||
-                memory.equalsIgnoreCase("NONE")){
-            return;
+        try {
+
+            String memory = chatClient.prompt()
+                    .user(extractionPrompt)
+                    .call()
+                    .content();
+
+            if (memory == null || memory.isBlank() || memory.equalsIgnoreCase("NONE")) {
+                return;
+            }
+
+            // limit size (important)
+            if (memory.length() > 300) {
+                memory = memory.substring(0, 300);
+            }
+
+            memoryVectorService.saveMemory(userId, memory, "personal");
+
+        } catch (Exception e) {
+            e.printStackTrace(); // or log.error
         }
-
-
-        memoryVectorService.saveMemory(
-                userId,
-                memory,
-                "personal"
-        );
 
     }
 

@@ -100,7 +100,7 @@ public class RiskDetectionService {
             String history = chatHistoryService.getLast10Message(user).toString();
 
             RiskStatus currentStatus = getCurrentRiskStatus(user);
-
+            System.out.println("going to detect risk status");
             String response = chatClient.prompt()
                     .user(s -> s.text(template)
                             .param("summary", summary)
@@ -109,7 +109,10 @@ public class RiskDetectionService {
                     .call()
                     .content();
 
+            System.out.println("risk status: "+response);
             if (response == null || response.isBlank()) return;
+            System.out.println("risk status: "+response);
+
 
             RiskStatusLevel newStatus = parseRiskLevel(response);
 

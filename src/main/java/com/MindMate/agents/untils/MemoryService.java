@@ -33,21 +33,46 @@ public class MemoryService {
 
         String oldSummary = getSummary(userId);
 
-        String updatedSummary =
-                chatClient.prompt()
-                        .user(u->u.text(memoryUpdateTemplate)
-                                .param("oldSummary", oldSummary)
-                                .param("msg", latestUserMsg)
-                                .param("reply", aiReply)
-                        )
-                        .call()
-                        .content();
+//        String updatedSummary =
+//                chatClient.prompt()
+//                        .user(u->u.text(memoryUpdateTemplate)
+//                                .param("oldSummary", oldSummary)
+//                                .param("msg", latestUserMsg)
+//                                .param("reply", aiReply)
+//                        )
+//                        .call()
+//                        .content();
+//
+//        UserMemory memory = memoryRepo.findById(userId).orElse(new UserMemory());
+//
+//        memory.setUserId(userId);
+//        memory.setSummary(updatedSummary);
+//
+//        memoryRepo.save(memory);
 
-        UserMemory memory = memoryRepo.findById(userId).orElse(new UserMemory());
+        try {
+            String updatedSummary = chatClient.prompt()
+                    .user(u->u.text(memoryUpdateTemplate)
+                            .param("oldSummary", oldSummary)
+                            .param("msg", latestUserMsg)
+                            .param("reply", aiReply)
+                    )
+                    .call()
+                    .content();
 
-        memory.setUserId(userId);
-        memory.setSummary(updatedSummary);
+            if (updatedSummary == null || updatedSummary.isBlank()) {
+                log.warn("Empty summary for user {}", userId);
+                return;
+            }
 
-        memoryRepo.save(memory);
+            UserMemory memory = memoryRepo.findById(userId).orElse(new UserMemory());
+            memory.setUserId(userId);
+            memory.setSummary(updatedSummary);
+
+            memoryRepo.save(memory);
+
+        } catch (Exception e) {
+            log.error("Memory update failed for user {}", userId, e);
+        }
     }
 }
