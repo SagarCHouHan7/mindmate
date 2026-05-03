@@ -1,6 +1,7 @@
 package com.MindMate.agents.carejourney;
 
 import com.MindMate.appointments.Appointment;
+import com.MindMate.appointments.AppointmentRepo;
 import com.MindMate.model.Notification;
 import com.MindMate.model.account.User;
 import com.MindMate.service.NotificationService;
@@ -19,6 +20,7 @@ public class CareJourneyAgentService {
     private final ChatClient chatClient;
     private final PatientReportRepo reportRepo;
     private final NotificationService notificationService;
+    private final AppointmentRepo appointmentRepo;
 
     @Value("classpath:/prompts/care-journey-report-template.st")
     private Resource reportTemplate;
@@ -77,5 +79,7 @@ public class CareJourneyAgentService {
         notification.setNote("New patient report generated for appointment with " + ctx.name());
         notificationService.addNotification(notification);
     }
+
+
 
 }
