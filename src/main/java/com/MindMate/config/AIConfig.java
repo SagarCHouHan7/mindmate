@@ -19,9 +19,4 @@ public class AIConfig {
                         )
                 .build();
     }
-
-//OllamaOptions
-//        .builder()
-//        .temperature(0.4)
-//                                .build()
 }
